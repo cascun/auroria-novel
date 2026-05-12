@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auroria | A New World of Stories</title>
+    <!-- Google Fonts for an elegant, literary look -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Base Reset */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body, html {
+            height: 100%;
+            font-family: 'Lora', serif;
+            /* Deep night sky gradient */
+            background: linear-gradient(135deg, #0b1320, #14283b, #193c4d); 
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Animated pseudo-aurora glow effect */
+        body::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(46, 204, 113, 0.1) 0%, rgba(0, 0, 0, 0) 50%),
+                        radial-gradient(circle, rgba(155, 89, 182, 0.1) 0%, rgba(0, 0, 0, 0) 50%);
+            background-position: 0 0, 50% 50%;
+            animation: auroraPulse 12s infinite alternate ease-in-out;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        @keyframes auroraPulse {
+            0% { transform: scale(1) translate(0, 0); }
+            100% { transform: scale(1.1) translate(2%, 2%); }
+        }
+
+        /* Glassmorphism Container */
+        .container {
+            position: relative;
+            z-index: 1;
+            padding: 50px 40px;
+            background: rgba(15, 25, 40, 0.6);
+            border-radius: 20px;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            max-width: 550px;
+            width: 90%;
+            animation: fadeIn 1.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Typography */
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            margin-bottom: 10px;
+            letter-spacing: 4px;
+            background: linear-gradient(to right, #fff, #a4b0be);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+        }
+
+        p {
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            color: #cbd5e1;
+            line-height: 1.6;
+        }
+
+        /* Form Styles */
+        .notify-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        @media (min-width: 500px) {
+            .notify-form {
+                flex-direction: row;
+            }
+        }
+
+        input[type="email"] {
+            flex: 1;
+            padding: 14px 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            font-size: 1rem;
+            font-family: 'Lora', serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input[type="email"]::placeholder {
+            color: #94a3b8;
+        }
+
+        input[type="email"]:focus {
+            border-color: #38bdf8;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
+        }
+
+        button {
+            padding: 14px 30px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+            color: #fff;
+            font-size: 1rem;
+            font-weight: bold;
+            font-family: 'Lora', serif;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(56, 189, 248, 0.4);
+        }
+
+        .footer-note {
+            margin-top: 30px;
+            font-size: 0.85rem;
+            color: #64748b;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Auroria</h1>
+        <p>Epic tales and uncharted worlds are on the horizon. Join the waitlist to be the first to read our stories.</p>
+        
+        <!-- You can link this form to Mailchimp, Formspree, or your backend -->
+        <form class="notify-form" onsubmit="event.preventDefault(); alert('Thanks for subscribing! We will notify you when Auroria launches.');">
+            <input type="email" placeholder="Enter your email address" required>
+            <button type="submit">Notify Me</button>
+        </form>
+
+        <div class="footer-note">
+            The next chapter begins soon.
+        </div>
+    </div>
+
+</body>
+</html>
