@@ -35,13 +35,13 @@ body {
 /* --- THE LAYERS --- */
 
 .bedroom {
-    background-image: url("images/Gordy_Bedroom.png");
+    background-image: url("images/Gordy_Bedroom.png?v=1");
     z-index: 10;
     filter: saturate(0.78) brightness(0.72) contrast(1.08);
 }
 
 .landscape {
-    background-image: url("images/Auroria_Hero.jpg");
+    background-image: url("images/Auroria_Hero.jpg?v=1");
     z-index: 20;
     opacity: 0;
     filter: saturate(1.08) brightness(1.02);
