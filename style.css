@@ -67,6 +67,12 @@ body {
     will-change: opacity;
 }
 
+#dust-canvas {
+    z-index: 15;
+    pointer-events: none;
+    will-change: opacity;
+}
+
 #rip-canvas {
     z-index: 30;
     pointer-events: none;

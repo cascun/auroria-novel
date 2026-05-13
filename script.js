@@ -4,6 +4,9 @@ const canvas = document.getElementById("rip-canvas");
 const whiteout = document.getElementById("whiteout");
 const ctx = canvas.getContext("2d");
 
+const dustCanvas = document.getElementById("dust-canvas");
+const dustCtx = dustCanvas.getContext("2d");
+
 const crackPaths = [
     [
         [0, -1],
@@ -73,6 +76,14 @@ function resizeCanvas() {
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+    dustCanvas.width = Math.floor(width * pixelRatio);
+    dustCanvas.height = Math.floor(height * pixelRatio);
+    dustCanvas.style.width = `${width}px`;
+    dustCanvas.style.height = `${height}px`;
+    dustCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+    initDust();
     drawRip(getScrollProgress());
 }
 
@@ -174,6 +185,7 @@ function drawRip(progress) {
     const whiteoutFade = 1 - smoothstep(0.70, 1, progress);
 
     bedroom.style.opacity = 1 - bedroomFade * 0.88;
+    dustCanvas.style.opacity = 1 - bedroomFade; // Fade out with the bedroom
     landscape.style.opacity = revealAuroria;
     whiteout.style.opacity = engulf * whiteoutFade;
     canvas.style.opacity = 1 - revealAuroria;
@@ -190,10 +202,6 @@ function drawRip(progress) {
 function updateScene() {
     drawRip(getScrollProgress());
 }
-
-window.addEventListener("resize", resizeCanvas);
-window.addEventListener("scroll", updateScene, { passive: true });
-resizeCanvas();
 
 const reveals = document.querySelectorAll(".reveal");
 
@@ -251,3 +259,69 @@ closeLightbox.addEventListener("click", () => {
     secretVideo.currentTime = 0;
     secretCodeInput.value = "";
 });
+
+/* --- DUST PARTICLES --- */
+let particles = [];
+const particleCount = 80;
+
+class Particle {
+    constructor() {
+        this.x = Math.random() * window.innerWidth;
+        this.y = Math.random() * window.innerHeight;
+        this.size = Math.random() * 2.5 + 1.2;
+        this.scaleX = Math.random() * 0.8 + 0.6; // Irregular shape
+        this.scaleY = Math.random() * 0.8 + 0.6;
+        this.speedX = Math.random() * 0.2 - 0.1;
+        this.speedY = Math.random() * 0.2 - 0.1;
+        this.opacity = Math.random() * 0.4 + 0.15;
+    }
+
+    update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.x < -10) this.x = window.innerWidth + 10;
+        if (this.x > window.innerWidth + 10) this.x = -10;
+        if (this.y < -10) this.y = window.innerHeight + 10;
+        if (this.y > window.innerHeight + 10) this.y = -10;
+    }
+
+    draw() {
+        dustCtx.save();
+        dustCtx.translate(this.x, this.y);
+        dustCtx.scale(this.scaleX, this.scaleY);
+
+        dustCtx.beginPath();
+        const gradient = dustCtx.createRadialGradient(0, 0, 0, 0, 0, this.size);
+        gradient.addColorStop(0, `rgba(210, 210, 220, ${this.opacity})`);
+        gradient.addColorStop(1, `rgba(210, 210, 220, 0)`); // Soft, blurred edge
+        
+        dustCtx.arc(0, 0, this.size, 0, Math.PI * 2);
+        dustCtx.fillStyle = gradient;
+        dustCtx.fill();
+        
+        dustCtx.restore();
+    }
+}
+
+function initDust() {
+    particles = [];
+    for (let i = 0; i < particleCount; i++) {
+        particles.push(new Particle());
+    }
+}
+
+function animateDust() {
+    dustCtx.clearRect(0, 0, dustCanvas.width, dustCanvas.height);
+    particles.forEach(p => {
+        p.update();
+        p.draw();
+    });
+    requestAnimationFrame(animateDust);
+}
+
+// Initialize and start event loops
+window.addEventListener("resize", resizeCanvas);
+window.addEventListener("scroll", updateScene, { passive: true });
+resizeCanvas();
+animateDust();
