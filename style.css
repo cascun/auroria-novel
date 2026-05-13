@@ -11,6 +11,25 @@ body {
     overflow-x: hidden;
 }
 
+/* --- PAGE LOAD FADE IN --- */
+.fade-in-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    z-index: 99999;
+    pointer-events: none;
+    animation: fadeOutOverlay 2.5s ease-in-out forwards;
+}
+
+@keyframes fadeOutOverlay {
+    0% { opacity: 1; }
+    15% { opacity: 1; } /* Hold black briefly */
+    100% { opacity: 0; }
+}
+
 .fixed-scene {
     position: fixed;
     top: 0;
