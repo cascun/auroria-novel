@@ -17,6 +17,7 @@ let mouseActive = false;
 
 const audioBedroom = document.getElementById("audio-bedroom");
 const audioAuroria = document.getElementById("audio-auroria");
+const audioRift = document.getElementById("audio-rift");
 const audioToggle = document.getElementById("audio-toggle");
 const iconMute = document.getElementById("icon-mute");
 const iconPlay = document.getElementById("icon-play");
@@ -229,6 +230,11 @@ function drawRip(progress) {
         audioBedroom.volume = clamp(1 - bedroomFade) * bedroomMaxVolume;
         audioAuroria.volume = clamp(revealAuroria) * auroriaMaxVolume;
     }
+    if (audioRift) {
+        const riftMaxVolume = 0.6; // Adjust this to balance the rift sound
+        // Fade in as the rift opens, fade out as Auroria is revealed
+        audioRift.volume = clamp(riftOpen * (1 - revealAuroria)) * riftMaxVolume;
+    }
 }
 
 function updateScene() {
@@ -406,13 +412,15 @@ window.addEventListener("mousemove", (e) => {
 audioToggle.addEventListener("click", () => {
     audioEnabled = !audioEnabled;
     if (audioEnabled) {
-        audioBedroom.play().catch(e => console.log("Audio play blocked", e));
-        audioAuroria.play().catch(e => console.log("Audio play blocked", e));
+        if (audioBedroom) audioBedroom.play().catch(e => console.log("Audio play blocked", e));
+        if (audioAuroria) audioAuroria.play().catch(e => console.log("Audio play blocked", e));
+        if (audioRift) audioRift.play().catch(e => console.log("Audio play blocked", e));
         iconMute.style.display = "none";
         iconPlay.style.display = "block";
     } else {
-        audioBedroom.pause();
-        audioAuroria.pause();
+        if (audioBedroom) audioBedroom.pause();
+        if (audioAuroria) audioAuroria.pause();
+        if (audioRift) audioRift.pause();
         iconMute.style.display = "block";
         iconPlay.style.display = "none";
     }
