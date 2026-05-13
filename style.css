@@ -35,13 +35,13 @@ body {
 /* --- THE LAYERS --- */
 
 .bedroom {
-    background-image: url("images/Gordy_Bedroom.png?v=1");
+    background-image: url("images/Gordy_Bedroom_Background.webp?v=2");
     z-index: 10;
     filter: saturate(0.78) brightness(0.72) contrast(1.08);
 }
 
 .landscape {
-    background-image: url("images/Auroria_Hero.jpg?v=1");
+    background-image: url("images/Auroria_Hero.jpg?v=2");
     z-index: 20;
     opacity: 0;
     filter: saturate(1.08) brightness(1.02);
@@ -373,7 +373,8 @@ h1 {
 
 @media (max-width: 720px) {
     .bedroom {
-        background-position: 50% center;
+        /* Shifted from 50% to 30% to show more of the room instead of just the center window */
+        background-position: 30% center;
     }
 
     .landscape {
