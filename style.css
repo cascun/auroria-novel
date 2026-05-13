@@ -422,6 +422,10 @@ h1 {
 }
 
 @media (max-width: 720px) {
+    .audio-btn {
+        display: none !important;
+    }
+
     .bedroom {
         /* Shifted from 50% to 30% to show more of the room instead of just the center window */
         background-position: 30% center;
