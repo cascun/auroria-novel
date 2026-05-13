@@ -3,171 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auroria | A New World of Stories</title>
-    <!-- Google Fonts for an elegant, literary look -->
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
-    
-    <style>
-        /* Base Reset */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body, html {
-            height: 100%;
-            font-family: 'Lora', serif;
-            /* Deep night sky gradient */
-            background: linear-gradient(135deg, #0b1320, #14283b, #193c4d); 
-            color: #ffffff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* Animated pseudo-aurora glow effect */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(46, 204, 113, 0.1) 0%, rgba(0, 0, 0, 0) 50%),
-                        radial-gradient(circle, rgba(155, 89, 182, 0.1) 0%, rgba(0, 0, 0, 0) 50%);
-            background-position: 0 0, 50% 50%;
-            animation: auroraPulse 12s infinite alternate ease-in-out;
-            z-index: 0;
-            pointer-events: none;
-        }
-
-        @keyframes auroraPulse {
-            0% { transform: scale(1) translate(0, 0); }
-            100% { transform: scale(1.1) translate(2%, 2%); }
-        }
-
-        /* Glassmorphism Container */
-        .container {
-            position: relative;
-            z-index: 1;
-            padding: 50px 40px;
-            background: rgba(15, 25, 40, 0.6);
-            border-radius: 20px;
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            max-width: 550px;
-            width: 90%;
-            animation: fadeIn 1.5s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Typography */
-        h1 {
-            font-family: 'Cinzel', serif;
-            font-size: 4rem;
-            margin-bottom: 10px;
-            letter-spacing: 4px;
-            background: linear-gradient(to right, #fff, #a4b0be);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
-        }
-
-        p {
-            font-size: 1.2rem;
-            margin-bottom: 40px;
-            color: #cbd5e1;
-            line-height: 1.6;
-        }
-
-        /* Form Styles */
-        .notify-form {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        @media (min-width: 500px) {
-            .notify-form {
-                flex-direction: row;
-            }
-        }
-
-        input[type="email"] {
-            flex: 1;
-            padding: 14px 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            background: rgba(255, 255, 255, 0.05);
-            color: #fff;
-            font-size: 1rem;
-            font-family: 'Lora', serif;
-            outline: none;
-            transition: all 0.3s ease;
-        }
-
-        input[type="email"]::placeholder {
-            color: #94a3b8;
-        }
-
-        input[type="email"]:focus {
-            border-color: #38bdf8;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.2);
-        }
-
-        button {
-            padding: 14px 30px;
-            border: none;
-            border-radius: 30px;
-            background: linear-gradient(135deg, #0ea5e9, #38bdf8);
-            color: #fff;
-            font-size: 1rem;
-            font-weight: bold;
-            font-family: 'Lora', serif;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(56, 189, 248, 0.4);
-        }
-
-        .footer-note {
-            margin-top: 30px;
-            font-size: 0.85rem;
-            color: #64748b;
-            font-style: italic;
-        }
-    </style>
+    <title>The Boy Who Made a World | An Auroria Novel</title>
+    <link rel="preload" as="image" href="images/Auroria_Hero.jpg">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <div class="container">
-        <h1>Auroria</h1>
-        <p>Epic tales and uncharted worlds are on the horizon. Join the waitlist to be the first to read our stories.</p>
-        
-        <!-- You can link this form to Mailchimp, Formspree, or your backend -->
-        <form class="notify-form" onsubmit="event.preventDefault(); alert('Thanks for subscribing! We will notify you when Auroria launches.');">
-            <input type="email" placeholder="Enter your email address" required>
-            <button type="submit">Notify Me</button>
-        </form>
+    <div class="fixed-scene">
+        <div class="layer bedroom" id="bedroom"></div>
+        <div class="layer landscape" id="landscape"></div>
+        <canvas id="rip-canvas" class="layer" aria-hidden="true"></canvas>
+        <div class="whiteout" id="whiteout"></div>
+    </div>
 
-        <div class="footer-note">
-            The next chapter begins soon.
+    <div class="scroll-track">
+        <div class="content" id="content">
+            
+            <div class="hero-section reveal">
+                <div class="title-container">
+                    <h1>The Boy Who Made a World</h1>
+                    <p class="subtitle">An Auroria Novel</p>
+                    <p class="author">By J. M. Mifsud</p>
+                </div>
+                
+                <p class="hook">Some worlds are made to escape.<br>Some are made to fight for.</p>
+                
+                <div class="cover-and-action">
+                    <img src="images/Cover%20Kindle%20Front%20Preview.jpg" alt="The Boy Who Made a World Cover" class="book-cover">
+                    <div class="action-details">
+                        <p class="hook-sub">When thirteen-year-old Gordy Jones discovers a hidden world shaped by imagination, he thinks he has finally found a place where he can be safe. But Auroria is not empty, and the darkness waiting there knows exactly what loneliness can become.</p>
+                        <span class="amazon-btn disabled">Coming Soon on Amazon Kindle</span>
+                        <div class="secret-container">
+                            <input type="text" id="secret-code" placeholder="Enter secret code..." autocomplete="off">
+                            <button id="reveal-btn">Reveal</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-section reveal">
+                <h2>About the Book</h2>
+                <p>Thirteen-year-old Gordy Jones has spent most of his life trying not to be noticed. Bullied at school and lonely at home, he reaches a breaking point one night and wishes the world would disappear.</p>
+                <p>Instead, the world opens.</p>
+                <p>Beyond the tear in reality waits Auroria, a secret place of silver trees, glowing skies, golden birds, and impossible freedom. But when one of Gordy’s bullies is pulled into the world, something ancient begins to wake.</p>
+                <p>To save Auroria, Gordy must face the boys who hurt him, the darkness he awakened, and the hardest truth of all: making a world is easy. Taking care of one is not.</p>
+            </div>
+            
+            <div class="badges-section reveal">
+                <p class="readers-like">A coming-of-age fantasy for readers who enjoy magical worlds, unlikely friendships, emotional adventure, and stories about courage, loneliness, and belonging.</p>
+            </div>
+
+            <div class="author-section reveal">
+                <h2>About the Author</h2>
+                <p><strong>J. M. Mifsud</strong> writes fantasy stories about hidden worlds, quiet courage, and the strange magic of ordinary people. <em>The Boy Who Made a World</em> is his first Auroria novel.</p>
+            </div>
+
+            <footer class="footer reveal">
+                <p>The Boy Who Made a World: An Auroria Novel</p>
+                <p>Copyright &copy; 2026 J. M. Mifsud. All rights reserved.</p>
+            </footer>
         </div>
     </div>
 
+    <div id="video-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <span id="close-lightbox" class="close-btn">&times;</span>
+            <video id="secret-video" controls playsinline>
+                <source id="video-source" src="" type="video/mp4">
+                Your browser does not support HTML video.
+            </video>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>

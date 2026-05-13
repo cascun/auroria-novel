@@ -1,0 +1,390 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Helvetica Neue", Arial, sans-serif;
+    background-color: #000;
+    color: #fff;
+    overflow-x: hidden;
+}
+
+.fixed-scene {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    z-index: 1; 
+}
+
+.layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    background-size: cover;
+    background-position: center;
+}
+
+/* --- THE LAYERS --- */
+
+.bedroom {
+    background-image: url("images/Gordy_Bedroom.png");
+    z-index: 10;
+    filter: saturate(0.78) brightness(0.72) contrast(1.08);
+}
+
+.landscape {
+    background-image: url("images/Auroria_Hero.jpg");
+    z-index: 20;
+    opacity: 0;
+    filter: saturate(1.08) brightness(1.02);
+    will-change: opacity;
+}
+
+#rip-canvas {
+    z-index: 30;
+    pointer-events: none;
+}
+
+.whiteout {
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    pointer-events: none;
+    background: #fff;
+    opacity: 0;
+    will-change: opacity;
+}
+
+/* --- SCROLLING CONTENT --- */
+
+.scroll-track {
+    padding-top: 390vh;
+    position: relative;
+    z-index: 50; 
+}
+
+.content {
+    width: 100%;
+    min-height: 100vh;
+    padding: 50px 20px;
+    background: linear-gradient(to bottom, transparent 0%, rgba(0,0,0,0.5) 15%, rgba(0,0,0,0.75) 30%, rgba(0,0,0,0.75) 100%);
+    text-align: center;
+}
+
+/* The Title */
+.title-container {
+    margin-bottom: 2rem; 
+    color: #ffd700; 
+    font-family: 'Times New Roman', serif; 
+}
+
+h1 {
+    font-size: clamp(3rem, 7vw, 5.6rem);
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+    text-transform: uppercase;
+    letter-spacing: 0;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: clamp(1.35rem, 2.7vw, 2rem);
+    font-style: normal; 
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+}
+
+.author {
+    font-size: clamp(1.1rem, 2vw, 1.5rem);
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+}
+
+/* Hero Section additions */
+.hero-section {
+    margin-bottom: 5rem;
+}
+
+.hook {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: bold;
+    font-style: italic;
+    color: #ffd700;
+    margin: 3rem auto;
+    line-height: 1.4;
+    max-width: 800px;
+    text-shadow: 2px 2px 10px rgba(0,0,0,0.8);
+}
+
+.cover-and-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    .cover-and-action {
+        flex-direction: row;
+        text-align: left;
+    }
+}
+
+.book-cover {
+    width: 100%;
+    max-width: 320px;
+    border-radius: 8px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 5px 15px rgba(255, 215, 0, 0.15);
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+
+.book-cover:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 45px rgba(0,0,0,0.8), 0 8px 25px rgba(255, 215, 0, 0.25);
+}
+
+.action-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hook-sub {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+    color: #eaeaea;
+}
+
+/* Amazon Button */
+.amazon-btn {
+    display: inline-block;
+    padding: 18px 36px;
+    background-color: #f3a847; 
+    color: #111;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.3rem;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    align-self: flex-start;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+@media (max-width: 767px) {
+    .amazon-btn {
+        align-self: center;
+    }
+}
+
+.amazon-btn:hover {
+    background-color: #dd963d;
+    transform: translateY(-2px);
+}
+
+.amazon-btn.disabled {
+    background-color: #555;
+    color: #999;
+    cursor: default;
+    pointer-events: none;
+    box-shadow: none;
+}
+
+/* Content Sections */
+.about-section, .author-section {
+    max-width: 800px;
+    margin: 0 auto 4rem auto;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 3rem 2.5rem;
+    border-radius: 16px;
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.about-section h2, .author-section h2 {
+    color: #ffd700;
+    font-size: 2.2rem;
+    margin-bottom: 1.5rem;
+    font-family: 'Times New Roman', serif;
+}
+
+.about-section p, .author-section p {
+    font-size: 1.15rem;
+    line-height: 1.8;
+    margin-bottom: 1.2rem;
+    color: #e0e0e0;
+}
+.about-section p:last-child, .author-section p:last-child {
+    margin-bottom: 0;
+}
+
+.badges-section {
+    max-width: 700px;
+    margin: 0 auto 4rem auto;
+    padding: 2rem;
+    border-top: 1px solid rgba(255, 215, 0, 0.2);
+    border-bottom: 1px solid rgba(255, 215, 0, 0.2);
+}
+
+.readers-like {
+    font-size: 1.2rem;
+    font-style: italic;
+    color: #ccc;
+    line-height: 1.6;
+}
+
+/* Footer */
+.footer {
+    padding-top: 3rem;
+    margin-top: 5rem;
+    padding-bottom: 2rem;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+.footer p {
+    margin-bottom: 0.5rem;
+}
+
+/* Secret Code Container */
+.secret-container {
+    opacity: 0.05;
+    transition: opacity 0.5s ease;
+    margin-top: 15px;
+    display: flex;
+    gap: 10px;
+    align-self: flex-start;
+}
+
+@media (max-width: 767px) {
+    .secret-container {
+        align-self: center;
+    }
+}
+
+.secret-container:hover, .secret-container:focus-within {
+    opacity: 0.4;
+}
+
+.secret-container input, .secret-container button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #fff;
+    padding: 10px 15px;
+    border-radius: 6px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.secret-container input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.secret-container input:focus {
+    border-color: rgba(255, 215, 0, 0.6);
+}
+
+.secret-container button {
+    cursor: pointer;
+    font-weight: bold;
+    color: rgba(255, 215, 0, 0.8);
+    border-color: rgba(255, 215, 0, 0.3);
+}
+
+.secret-container button:hover {
+    background: rgba(255, 215, 0, 0.1);
+    border-color: rgba(255, 215, 0, 0.6);
+}
+
+/* Lightbox Styles */
+.lightbox {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: rgba(0, 0, 0, 0.95);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    backdrop-filter: blur(10px);
+}
+
+.lightbox.active {
+    opacity: 1;
+    pointer-events: all;
+}
+
+.lightbox-content {
+    position: relative;
+    max-width: 90%;
+    max-height: 90%;
+    width: 800px;
+}
+
+.lightbox-content video {
+    width: 100%;
+    border-radius: 12px;
+    box-shadow: 0 10px 40px rgba(255, 215, 0, 0.15), 0 0 100px rgba(255, 255, 255, 0.05);
+    outline: none;
+}
+
+.close-btn {
+    position: absolute;
+    top: -50px; right: 0;
+    color: #fff; font-size: 40px;
+    cursor: pointer;
+    transition: color 0.3s ease, transform 0.3s ease;
+    line-height: 1;
+}
+
+.close-btn:hover {
+    color: #ffd700;
+    transform: scale(1.1);
+}
+
+.spacer {
+    display: none;
+}
+
+/* --- FADE IN ANIMATION CLASSES --- */
+.reveal {
+    opacity: 0;
+    transform: translateY(50px); /* Pushes elements down slightly so they slide up */
+    transition: all 1s ease-out; /* Controls the speed of the fade */
+}
+
+/* This class gets attached by JS when the element comes into view */
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+@media (max-width: 720px) {
+    .bedroom {
+        background-position: 50% center;
+    }
+
+    .landscape {
+        background-position: 50% center;
+    }
+
+    .content {
+        padding: 42px 18px;
+    }
+
+    .content h2 {
+        font-size: 2.1rem;
+    }
+}
