@@ -49,6 +49,7 @@ body {
     object-fit: cover; 
     background-size: cover;
     background-position: center;
+    will-change: transform, opacity;
 }
 
 /* --- THE LAYERS --- */
@@ -71,6 +72,24 @@ body {
     z-index: 15;
     pointer-events: none;
     will-change: opacity;
+}
+
+#cursor-glow {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 400px;
+    height: 400px;
+    margin-top: -200px;
+    margin-left: -200px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 223, 115, 0.12) 0%, rgba(255, 223, 115, 0) 70%);
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: screen;
+    will-change: transform, opacity;
+    opacity: 0;
+    transition: opacity 1s ease;
 }
 
 #rip-canvas {
@@ -419,4 +438,38 @@ h1 {
     .content h2 {
         font-size: 2.1rem;
     }
+}
+
+/* --- AUDIO TOGGLE --- */
+.audio-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    cursor: pointer;
+    z-index: 9999;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+}
+
+.audio-btn:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    transform: scale(1.1);
+    border-color: rgba(255, 223, 115, 0.5);
+    box-shadow: 0 0 15px rgba(255, 223, 115, 0.2);
+}
+
+.audio-btn svg {
+    width: 24px;
+    height: 24px;
 }

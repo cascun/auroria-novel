@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
     <link rel="preload" as="image" href="images/Auroria_Hero.jpg?v=2">
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=12">
 </head>
 <body>
 
@@ -81,6 +81,25 @@
         </div>
     </div>
 
-    <script src="script.js?v=9"></script>
+    <div id="cursor-glow"></div>
+    
+    <!-- Audio Elements -->
+    <audio id="audio-bedroom" loop src="audio/bedroom.mp3"></audio>
+    <audio id="audio-auroria" loop src="audio/auroria.mp3"></audio>
+
+    <!-- Audio Toggle Button -->
+    <button id="audio-toggle" class="audio-btn" aria-label="Toggle ambient sound">
+        <svg id="icon-mute" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <line x1="23" y1="9" x2="17" y2="15"></line>
+            <line x1="17" y1="9" x2="23" y2="15"></line>
+        </svg>
+        <svg id="icon-play" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: none;">
+            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+        </svg>
+    </button>
+
+    <script src="script.js?v=16"></script>
 </body>
 </html>

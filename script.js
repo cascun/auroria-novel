@@ -7,6 +7,21 @@ const ctx = canvas.getContext("2d");
 const dustCanvas = document.getElementById("dust-canvas");
 const dustCtx = dustCanvas.getContext("2d");
 
+let targetMouseX = 0;
+let targetMouseY = 0;
+let currentMouseX = 0;
+let currentMouseY = 0;
+let mouseX = window.innerWidth / 2;
+let mouseY = window.innerHeight / 2;
+let mouseActive = false;
+
+const audioBedroom = document.getElementById("audio-bedroom");
+const audioAuroria = document.getElementById("audio-auroria");
+const audioToggle = document.getElementById("audio-toggle");
+const iconMute = document.getElementById("icon-mute");
+const iconPlay = document.getElementById("icon-play");
+let audioEnabled = false;
+
 const crackPaths = [
     [
         [0, -1],
@@ -60,6 +75,10 @@ const crackPaths = [
 
 function clamp(value, min = 0, max = 1) {
     return Math.min(max, Math.max(min, value));
+}
+
+function lerp(start, end, factor) {
+    return start + (end - start) * factor;
 }
 
 function smoothstep(edge0, edge1, value) {
@@ -190,6 +209,11 @@ function drawRip(progress) {
     whiteout.style.opacity = engulf * whiteoutFade;
     canvas.style.opacity = 1 - revealAuroria;
 
+    const glow = document.getElementById("cursor-glow");
+    if (glow && mouseActive) {
+        glow.style.opacity = 1 - bedroomFade;
+    }
+
     const scaleX = width * (0.03 + crackBirth * 0.22 + riftOpen * 0.08);
     const scaleY = height * (0.04 + crackBirth * 0.35 + riftOpen * 0.12);
     drawGlassCracks(centerX, centerY, scaleX, scaleY, crackBirth, crackBirth);
@@ -197,6 +221,14 @@ function drawRip(progress) {
     const riftWidth = width * (0.01 + riftOpen * 0.3 + engulf * 0.9);
     const riftHeight = height * (0.06 + riftOpen * 0.94 + engulf * 0.7);
     drawRift(centerX, centerY, riftWidth, riftHeight, riftOpen, crackBirth + riftOpen + engulf);
+
+    // Audio Crossfading
+    if (audioBedroom && audioAuroria) {
+        const bedroomMaxVolume = 0.03; // Extremely quiet, subtle background noise
+        const auroriaMaxVolume = 0.4;
+        audioBedroom.volume = clamp(1 - bedroomFade) * bedroomMaxVolume;
+        audioAuroria.volume = clamp(revealAuroria) * auroriaMaxVolume;
+    }
 }
 
 function updateScene() {
@@ -280,6 +312,20 @@ class Particle {
         this.x += this.speedX;
         this.y += this.speedY;
 
+        if (mouseActive) {
+            const dx = this.x - mouseX;
+            const dy = this.y - mouseY;
+            const distance = Math.sqrt(dx * dx + dy * dy);
+            
+            const interactionRadius = 180;
+            if (distance < interactionRadius) {
+                const force = (interactionRadius - distance) / interactionRadius;
+                const angle = Math.atan2(dy, dx);
+                this.x += Math.cos(angle) * force * 4;
+                this.y += Math.sin(angle) * force * 4;
+            }
+        }
+
         if (this.x < -10) this.x = window.innerWidth + 10;
         if (this.x > window.innerWidth + 10) this.x = -10;
         if (this.y < -10) this.y = window.innerHeight + 10;
@@ -317,11 +363,60 @@ function animateDust() {
         p.update();
         p.draw();
     });
+
+    // 3D Parallax Update
+    currentMouseX = lerp(currentMouseX, targetMouseX, 0.05);
+    currentMouseY = lerp(currentMouseY, targetMouseY, 0.05);
+
+    const shiftX = currentMouseX * -15; 
+    const shiftY = currentMouseY * -15;
+    const landscapeShiftX = currentMouseX * -5;
+    const landscapeShiftY = currentMouseY * -5;
+
+    bedroom.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+    dustCanvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+    canvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+    landscape.style.transform = `scale(1.05) translate(${landscapeShiftX}px, ${landscapeShiftY}px)`;
+
+    const glow = document.getElementById("cursor-glow");
+    if (glow && mouseActive) {
+        const glowX = ((currentMouseX + 1) / 2) * window.innerWidth;
+        const glowY = ((currentMouseY + 1) / 2) * window.innerHeight;
+        glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+    }
+
     requestAnimationFrame(animateDust);
 }
 
 // Initialize and start event loops
 window.addEventListener("resize", resizeCanvas);
 window.addEventListener("scroll", updateScene, { passive: true });
+window.addEventListener("mousemove", (e) => {
+    targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+    targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    if (!mouseActive) {
+        mouseActive = true;
+        drawRip(getScrollProgress());
+    }
+});
+
+audioToggle.addEventListener("click", () => {
+    audioEnabled = !audioEnabled;
+    if (audioEnabled) {
+        audioBedroom.play().catch(e => console.log("Audio play blocked", e));
+        audioAuroria.play().catch(e => console.log("Audio play blocked", e));
+        iconMute.style.display = "none";
+        iconPlay.style.display = "block";
+    } else {
+        audioBedroom.pause();
+        audioAuroria.pause();
+        iconMute.style.display = "block";
+        iconPlay.style.display = "none";
+    }
+});
+
 resizeCanvas();
 animateDust();
