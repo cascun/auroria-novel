@@ -2,6 +2,8 @@ const bedroom = document.getElementById("bedroom");
 const landscape = document.getElementById("landscape");
 const canvas = document.getElementById("rip-canvas");
 const whiteout = document.getElementById("whiteout");
+const secretCodeLayer = document.getElementById("secret-code-layer");
+const scrollIndicator = document.getElementById("scroll-indicator");
 const ctx = canvas.getContext("2d");
 
 const dustCanvas = document.getElementById("dust-canvas");
@@ -205,6 +207,7 @@ function drawRip(progress) {
     const whiteoutFade = 1 - smoothstep(0.70, 1, progress);
 
     bedroom.style.opacity = 1 - bedroomFade * 0.88;
+    if (secretCodeLayer) secretCodeLayer.style.opacity = 1 - bedroomFade * 0.88;
     dustCanvas.style.opacity = 1 - bedroomFade; // Fade out with the bedroom
     landscape.style.opacity = revealAuroria;
     whiteout.style.opacity = engulf * whiteoutFade;
@@ -213,6 +216,12 @@ function drawRip(progress) {
     const glow = document.getElementById("cursor-glow");
     if (glow && mouseActive) {
         glow.style.opacity = 1 - bedroomFade;
+    }
+
+    if (scrollIndicator) {
+        // Fade out very quickly as soon as scrolling starts (by 2% progress)
+        const indicatorFade = smoothstep(0, 0.02, progress);
+        scrollIndicator.style.opacity = 1 - indicatorFade;
     }
 
     const scaleX = width * (0.03 + crackBirth * 0.22 + riftOpen * 0.08);
@@ -380,6 +389,7 @@ function animateDust() {
     const landscapeShiftY = currentMouseY * -5;
 
     bedroom.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+    if (secretCodeLayer) secretCodeLayer.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
     dustCanvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
     canvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
     landscape.style.transform = `scale(1.05) translate(${landscapeShiftX}px, ${landscapeShiftY}px)`;
@@ -389,6 +399,16 @@ function animateDust() {
         const glowX = ((currentMouseX + 1) / 2) * window.innerWidth;
         const glowY = ((currentMouseY + 1) / 2) * window.innerHeight;
         glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+        
+        if (secretCodeLayer) {
+            // Adjust mask coordinates to account for the layer's parallax shift
+            const maskX = mouseX - shiftX;
+            const maskY = mouseY - shiftY;
+            const maskSize = 180;
+            const gradient = `radial-gradient(circle ${maskSize}px at ${maskX}px ${maskY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)`;
+            secretCodeLayer.style.webkitMaskImage = gradient;
+            secretCodeLayer.style.maskImage = gradient;
+        }
     }
 
     requestAnimationFrame(animateDust);

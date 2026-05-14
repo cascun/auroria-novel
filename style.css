@@ -60,6 +60,16 @@ body {
     filter: saturate(0.78) brightness(0.72) contrast(1.08);
 }
 
+.secret-code {
+    background-image: url("images/Bedroom_Secret_Code.webp?v=1");
+    z-index: 11;
+    pointer-events: none;
+    -webkit-mask-image: radial-gradient(circle 150px at -1000px -1000px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    mask-image: radial-gradient(circle 150px at -1000px -1000px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%);
+    /* A subtle glow filter makes the hidden text "pop" more when revealed by the aura */
+    filter: drop-shadow(0 0 8px rgba(255, 223, 115, 0.8));
+}
+
 .landscape {
     background-image: url("images/Auroria_Hero.jpg?v=2");
     z-index: 20;
@@ -476,4 +486,51 @@ h1 {
 .audio-btn svg {
     width: 24px;
     height: 24px;
+}
+
+/* --- SCROLL INDICATOR --- */
+.scroll-indicator {
+    position: fixed;
+    bottom: 30px;
+    left: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    color: rgba(255, 255, 255, 0.4);
+    z-index: 100;
+    pointer-events: none;
+    transition: opacity 0.5s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.8));
+}
+
+.scroll-text {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+}
+
+.scroll-indicator svg {
+    width: 22px;
+    height: 22px;
+    opacity: 0.7;
+}
+
+.scroll-indicator .arrow {
+    animation: scroll-bounce-anim 2s infinite ease-in-out;
+}
+
+@keyframes scroll-bounce-anim {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(6px); }
+    60% { transform: translateY(3px); }
+}
+
+@media (max-width: 720px) {
+    .scroll-indicator {
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 20px;
+    }
 }
