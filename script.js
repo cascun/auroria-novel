@@ -450,6 +450,7 @@ function animateDust() {
             const glowX = ((currentMouseX + 1) / 2) * window.innerWidth;
             const glowY = ((currentMouseY + 1) / 2) * window.innerHeight;
             glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+            glow.style.opacity = 1 - smoothstep(0.40, 0.75, currentScrollProgress);
             
             if (secretCodeLayer) {
                 // Adjust mask coordinates to account for the layer's parallax shift

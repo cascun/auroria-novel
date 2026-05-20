@@ -71,7 +71,7 @@ body {
 }
 
 .landscape {
-    background-image: url("images/Auroria_Hero.jpg?v=2");
+    background-image: url("images/Auroria_Hero.webp?v=3");
     z-index: 20;
     opacity: 0;
     filter: saturate(1.08) brightness(1.02);
