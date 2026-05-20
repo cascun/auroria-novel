@@ -9,6 +9,27 @@ const ctx = canvas.getContext("2d");
 const dustCanvas = document.getElementById("dust-canvas");
 const dustCtx = dustCanvas.getContext("2d");
 
+// Pre-render a generic particle onto an off-screen canvas to avoid creating gradients on every frame
+const particleCacheCanvas = document.createElement("canvas");
+const pCacheSize = 32;
+particleCacheCanvas.width = pCacheSize;
+particleCacheCanvas.height = pCacheSize;
+const pCacheCtx = particleCacheCanvas.getContext("2d");
+const pCacheGrad = pCacheCtx.createRadialGradient(
+    pCacheSize / 2,
+    pCacheSize / 2,
+    0,
+    pCacheSize / 2,
+    pCacheSize / 2,
+    pCacheSize / 2
+);
+pCacheGrad.addColorStop(0, "rgba(210, 210, 220, 1)");
+pCacheGrad.addColorStop(1, "rgba(210, 210, 220, 0)");
+pCacheCtx.fillStyle = pCacheGrad;
+pCacheCtx.beginPath();
+pCacheCtx.arc(pCacheSize / 2, pCacheSize / 2, pCacheSize / 2, 0, Math.PI * 2);
+pCacheCtx.fill();
+
 let targetMouseX = 0;
 let targetMouseY = 0;
 let currentMouseX = 0;
@@ -16,6 +37,9 @@ let currentMouseY = 0;
 let mouseX = window.innerWidth / 2;
 let mouseY = window.innerHeight / 2;
 let mouseActive = false;
+
+let targetScrollProgress = 0;
+let currentScrollProgress = 0;
 
 const audioBedroom = document.getElementById("audio-bedroom");
 const audioAuroria = document.getElementById("audio-auroria");
@@ -106,7 +130,9 @@ function resizeCanvas() {
     dustCtx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 
     initDust();
-    drawRip(getScrollProgress());
+    targetScrollProgress = getScrollProgress();
+    currentScrollProgress = targetScrollProgress;
+    drawRip(currentScrollProgress);
 }
 
 function getScrollProgress() {
@@ -128,15 +154,20 @@ function drawPath(points, centerX, centerY, scaleX, scaleY, progress, width, alp
 
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.shadowColor = `rgba(255, 255, 255, ${0.85 * alpha})`;
-    ctx.shadowBlur = 22 * alpha;
-    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
-    ctx.lineWidth = width;
+
+    // 1. Soft wide white glow overlay
+    ctx.strokeStyle = `rgba(255, 255, 255, ${0.15 * alpha})`;
+    ctx.lineWidth = width * 6.5;
     ctx.stroke();
 
-    ctx.shadowBlur = 0;
-    ctx.strokeStyle = `rgba(100, 225, 255, ${0.22 * alpha})`;
+    // 2. Medium cyan/blue glow overlay
+    ctx.strokeStyle = `rgba(100, 225, 255, ${0.28 * alpha})`;
     ctx.lineWidth = width * 3.2;
+    ctx.stroke();
+
+    // 3. Sharp white core
+    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+    ctx.lineWidth = width;
     ctx.stroke();
 }
 
@@ -177,9 +208,7 @@ function drawRift(centerX, centerY, width, height, openness, glow) {
     ctx.ellipse(centerX, centerY, width * 1.8, height * 0.62, -0.05, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.shadowColor = "rgba(255,255,255,0.95)";
-    ctx.shadowBlur = 34 + glow * 62;
-    ctx.fillStyle = `rgba(255,255,255,${0.82 * glow})`;
+    // Reconstructing the inner path to render strokes and fill
     ctx.beginPath();
     pointsLeft.forEach(([x, y], index) => {
         if (index === 0) ctx.moveTo(x, y);
@@ -187,7 +216,22 @@ function drawRift(centerX, centerY, width, height, openness, glow) {
     });
     pointsRight.reverse().forEach(([x, y]) => ctx.lineTo(x, y));
     ctx.closePath();
+
+    // 1. Wide outer soft glow stroke
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = `rgba(255, 255, 255, ${0.12 * glow})`;
+    ctx.lineWidth = 20 + glow * 30;
+    ctx.stroke();
+
+    // 2. Medium intense cyan glow stroke
+    ctx.strokeStyle = `rgba(206, 246, 255, ${0.3 * glow})`;
+    ctx.lineWidth = 8 + glow * 12;
+    ctx.stroke();
+
+    // 3. Bright core fill
+    ctx.fillStyle = `rgba(255, 255, 255, ${0.82 * glow})`;
     ctx.fill();
+
     ctx.restore();
 }
 
@@ -247,7 +291,7 @@ function drawRip(progress) {
 }
 
 function updateScene() {
-    drawRip(getScrollProgress());
+    targetScrollProgress = getScrollProgress();
 }
 
 const reveals = document.querySelectorAll(".reveal");
@@ -351,16 +395,11 @@ class Particle {
         dustCtx.save();
         dustCtx.translate(this.x, this.y);
         dustCtx.scale(this.scaleX, this.scaleY);
+        dustCtx.globalAlpha = this.opacity;
 
-        dustCtx.beginPath();
-        const gradient = dustCtx.createRadialGradient(0, 0, 0, 0, 0, this.size);
-        gradient.addColorStop(0, `rgba(210, 210, 220, ${this.opacity})`);
-        gradient.addColorStop(1, `rgba(210, 210, 220, 0)`); // Soft, blurred edge
-        
-        dustCtx.arc(0, 0, this.size, 0, Math.PI * 2);
-        dustCtx.fillStyle = gradient;
-        dustCtx.fill();
-        
+        const radius = this.size;
+        dustCtx.drawImage(particleCacheCanvas, -radius, -radius, radius * 2, radius * 2);
+
         dustCtx.restore();
     }
 }
@@ -379,35 +418,48 @@ function animateDust() {
         p.draw();
     });
 
+    // Scroll progress update
+    const scrollChanged = Math.abs(currentScrollProgress - targetScrollProgress) > 0.0001;
+    if (scrollChanged) {
+        currentScrollProgress = lerp(currentScrollProgress, targetScrollProgress, 0.08);
+        drawRip(currentScrollProgress);
+    } else if (currentScrollProgress !== targetScrollProgress) {
+        currentScrollProgress = targetScrollProgress;
+        drawRip(currentScrollProgress);
+    }
+
     // 3D Parallax Update
-    currentMouseX = lerp(currentMouseX, targetMouseX, 0.05);
-    currentMouseY = lerp(currentMouseY, targetMouseY, 0.05);
+    const mouseMoved = Math.abs(currentMouseX - targetMouseX) > 0.0001 || Math.abs(currentMouseY - targetMouseY) > 0.0001;
+    if (mouseMoved) {
+        currentMouseX = lerp(currentMouseX, targetMouseX, 0.05);
+        currentMouseY = lerp(currentMouseY, targetMouseY, 0.05);
 
-    const shiftX = currentMouseX * -15; 
-    const shiftY = currentMouseY * -15;
-    const landscapeShiftX = currentMouseX * -5;
-    const landscapeShiftY = currentMouseY * -5;
+        const shiftX = currentMouseX * -15; 
+        const shiftY = currentMouseY * -15;
+        const landscapeShiftX = currentMouseX * -5;
+        const landscapeShiftY = currentMouseY * -5;
 
-    bedroom.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
-    if (secretCodeLayer) secretCodeLayer.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
-    dustCanvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
-    canvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
-    landscape.style.transform = `scale(1.05) translate(${landscapeShiftX}px, ${landscapeShiftY}px)`;
+        bedroom.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+        if (secretCodeLayer) secretCodeLayer.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+        dustCanvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+        canvas.style.transform = `scale(1.05) translate(${shiftX}px, ${shiftY}px)`;
+        landscape.style.transform = `scale(1.05) translate(${landscapeShiftX}px, ${landscapeShiftY}px)`;
 
-    const glow = document.getElementById("cursor-glow");
-    if (glow && mouseActive) {
-        const glowX = ((currentMouseX + 1) / 2) * window.innerWidth;
-        const glowY = ((currentMouseY + 1) / 2) * window.innerHeight;
-        glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
-        
-        if (secretCodeLayer) {
-            // Adjust mask coordinates to account for the layer's parallax shift
-            const maskX = mouseX - shiftX;
-            const maskY = mouseY - shiftY;
-            const maskSize = 180;
-            const gradient = `radial-gradient(circle ${maskSize}px at ${maskX}px ${maskY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)`;
-            secretCodeLayer.style.webkitMaskImage = gradient;
-            secretCodeLayer.style.maskImage = gradient;
+        const glow = document.getElementById("cursor-glow");
+        if (glow && mouseActive) {
+            const glowX = ((currentMouseX + 1) / 2) * window.innerWidth;
+            const glowY = ((currentMouseY + 1) / 2) * window.innerHeight;
+            glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
+            
+            if (secretCodeLayer) {
+                // Adjust mask coordinates to account for the layer's parallax shift
+                const maskX = mouseX - shiftX;
+                const maskY = mouseY - shiftY;
+                const maskSize = 180;
+                const gradient = `radial-gradient(circle ${maskSize}px at ${maskX}px ${maskY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)`;
+                secretCodeLayer.style.webkitMaskImage = gradient;
+                secretCodeLayer.style.maskImage = gradient;
+            }
         }
     }
 
@@ -425,7 +477,6 @@ window.addEventListener("mousemove", (e) => {
     
     if (!mouseActive) {
         mouseActive = true;
-        drawRip(getScrollProgress());
     }
 });
 
