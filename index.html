@@ -25,16 +25,16 @@
 
     <div class="scroll-track">
         <div class="content" id="content">
-            
+
             <div class="hero-section reveal">
                 <div class="title-container">
                     <h1>The Boy Who Made a World</h1>
                     <p class="subtitle">An Auroria Novel</p>
                     <p class="author">By J. G. Mifsud</p>
                 </div>
-                
+
                 <p class="hook">Some worlds are made to escape.<br>Some are made to fight for.</p>
-                
+
                 <div class="cover-and-action">
                     <img src="images/Cover_Kindle_Front_Preview_Small.jpg?v=3" alt="The Boy Who Made a World Cover" class="book-cover">
                     <div class="action-details">
@@ -55,7 +55,7 @@
                 <p>Beyond the tear in reality waits Auroria, a secret place of silver trees, glowing skies, golden birds, and impossible freedom. But when one of Gordy’s bullies is pulled into the world, something ancient begins to wake.</p>
                 <p>To save Auroria, Gordy must face the boys who hurt him, the darkness he awakened, and the hardest truth of all: making a world is easy. Taking care of one is not.</p>
             </div>
-            
+
             <div class="badges-section reveal">
                 <p class="readers-like">A coming-of-age fantasy for readers who enjoy magical worlds, unlikely friendships, emotional adventure, and stories about courage, loneliness, and belonging.</p>
             </div>
@@ -83,7 +83,7 @@
     </div>
 
     <div id="cursor-glow"></div>
-    
+
     <div id="scroll-indicator" class="scroll-indicator">
         <span class="scroll-text">Scroll Down</span>
         <svg class="arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -91,7 +91,7 @@
             <polyline points="19 12 12 19 5 12"></polyline>
         </svg>
     </div>
-    
+
     <!-- Audio Elements -->
     <audio id="audio-bedroom" loop src="audio/bedroom.mp3"></audio>
     <audio id="audio-auroria" loop src="audio/auroria.mp3"></audio>
@@ -111,5 +111,25 @@
     </button>
 
     <script src="script.js?v=26"></script>
+
+    <!--AI agent widget-->
+    <link rel="stylesheet" href="https://echo.nexali.cc/widget/style.css" />
+    <script src="https://echo.nexali.cc/widget/nexali-chat-widget.js"></script>
+    <script>
+        window.NexaliChatWidget.init({
+            publicKey: "widget-522fa55525ef41f286066c3191abbbeb",
+            apiBaseUrl: "https://echo.nexali.cc",
+            echoHubUrl: "https://echo.nexali.cc/echo-chat",
+            theme: {
+                headerColor: "#76736e",
+                buttonColor: "#876345",
+                headerText: "Need Help?",
+                userBubblePreset: "grey",
+                launcherIconPreset: "sparkle"
+            }
+        });
+    </script>
+
 </body>
+
 </html>
