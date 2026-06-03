@@ -38,6 +38,12 @@ let mouseX = window.innerWidth / 2;
 let mouseY = window.innerHeight / 2;
 let mouseActive = false;
 
+// Touch / mobile support for the secret code flashlight
+const isTouchDevice = window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+let touchActive = false;
+let touchX = 0;
+let touchY = 0;
+
 let targetScrollProgress = 0;
 let currentScrollProgress = 0;
 
@@ -452,8 +458,8 @@ function animateDust() {
             glow.style.transform = `translate(${glowX}px, ${glowY}px)`;
             glow.style.opacity = 1 - smoothstep(0.40, 0.75, currentScrollProgress);
             
-            if (secretCodeLayer) {
-                // Adjust mask coordinates to account for the layer's parallax shift
+            if (secretCodeLayer && !isTouchDevice) {
+                // Desktop only: adjust mask coordinates to account for the layer's parallax shift
                 const maskX = mouseX - shiftX;
                 const maskY = mouseY - shiftY;
                 const maskSize = 180;
@@ -462,6 +468,16 @@ function animateDust() {
                 secretCodeLayer.style.maskImage = gradient;
             }
         }
+    }
+
+    // Mobile: continuous hint pulse for secret code layer
+    if (isTouchDevice && secretCodeLayer && !touchActive) {
+        const pulseTime = performance.now() / 1000;
+        const bedroomFade = smoothstep(0.40, 0.75, currentScrollProgress);
+        const pulse = 0.04 + 0.04 * Math.sin(pulseTime * 0.8); // breathes between ~0.00 and ~0.08
+        secretCodeLayer.style.opacity = pulse * (1 - bedroomFade);
+        secretCodeLayer.style.webkitMaskImage = "none";
+        secretCodeLayer.style.maskImage = "none";
     }
 
     requestAnimationFrame(animateDust);
@@ -480,6 +496,46 @@ window.addEventListener("mousemove", (e) => {
         mouseActive = true;
     }
 });
+
+// Touch event handlers for mobile flashlight
+if (isTouchDevice && secretCodeLayer) {
+    const fixedScene = document.querySelector(".fixed-scene");
+    if (fixedScene) {
+        fixedScene.addEventListener("touchstart", (e) => {
+            touchActive = true;
+        }, { passive: true });
+
+        fixedScene.addEventListener("touchmove", (e) => {
+            const touch = e.touches[0];
+            if (!touch) return;
+            touchX = touch.clientX;
+            touchY = touch.clientY;
+            touchActive = true;
+
+            // Apply the radial spotlight mask at the touch point
+            const shiftX = currentMouseX * -15;
+            const shiftY = currentMouseY * -15;
+            const maskX = touchX - shiftX;
+            const maskY = touchY - shiftY;
+            const maskSize = 140;
+            const gradient = `radial-gradient(circle ${maskSize}px at ${maskX}px ${maskY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)`;
+            secretCodeLayer.style.webkitMaskImage = gradient;
+            secretCodeLayer.style.maskImage = gradient;
+            // Restore full layer opacity while touching
+            const bedroomFade = smoothstep(0.40, 0.75, currentScrollProgress);
+            secretCodeLayer.style.opacity = 1 - bedroomFade * 0.88;
+        }, { passive: true });
+
+        fixedScene.addEventListener("touchend", () => {
+            touchActive = false;
+            // Mask will be cleared on next drawRip frame (pulse resumes)
+        }, { passive: true });
+
+        fixedScene.addEventListener("touchcancel", () => {
+            touchActive = false;
+        }, { passive: true });
+    }
+}
 
 audioToggle.addEventListener("click", () => {
     audioEnabled = !audioEnabled;
