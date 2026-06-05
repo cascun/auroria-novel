@@ -70,6 +70,14 @@ body {
     filter: drop-shadow(0 0 8px rgba(255, 223, 115, 0.8));
 }
 
+/* In portrait, background-size:cover crops the left/right edges of the 16:9 images.
+   Shift both layers so the headboard area (where the secret code is) remains visible. */
+@media (orientation: portrait) {
+    .bedroom, .secret-code {
+        background-position: 30% center;
+    }
+}
+
 .landscape {
     background-image: url("images/Auroria_Hero.webp?v=3");
     z-index: 20;
@@ -440,11 +448,6 @@ h1 {
 }
 
 @media (max-width: 720px) {
-
-    .bedroom {
-        /* Shifted from 50% to 30% to show more of the room instead of just the center window */
-        background-position: 30% center;
-    }
 
     .landscape {
         background-position: 50% center;

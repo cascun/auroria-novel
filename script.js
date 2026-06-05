@@ -474,7 +474,7 @@ function animateDust() {
     if (isTouchDevice && secretCodeLayer && !touchActive) {
         const pulseTime = performance.now() / 1000;
         const bedroomFade = smoothstep(0.40, 0.75, currentScrollProgress);
-        const pulse = 0.04 + 0.04 * Math.sin(pulseTime * 0.8); // breathes between ~0.00 and ~0.08
+        const pulse = 0.08 + 0.05 * Math.sin(pulseTime * 0.8); // breathes between 0.03 and 0.13 (slightly more visible at peak)
         secretCodeLayer.style.opacity = pulse * (1 - bedroomFade);
         secretCodeLayer.style.webkitMaskImage = "none";
         secretCodeLayer.style.maskImage = "none";
@@ -487,6 +487,7 @@ function animateDust() {
 window.addEventListener("resize", resizeCanvas);
 window.addEventListener("scroll", updateScene, { passive: true });
 window.addEventListener("mousemove", (e) => {
+    if (isTouchDevice) return; // Skip simulated mouse movements on touch devices to prevent layer shifts
     targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
     targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
     mouseX = e.clientX;
@@ -499,42 +500,112 @@ window.addEventListener("mousemove", (e) => {
 
 // Touch event handlers for mobile flashlight
 if (isTouchDevice && secretCodeLayer) {
-    const fixedScene = document.querySelector(".fixed-scene");
-    if (fixedScene) {
-        fixedScene.addEventListener("touchstart", (e) => {
-            touchActive = true;
-        }, { passive: true });
 
-        fixedScene.addEventListener("touchmove", (e) => {
-            const touch = e.touches[0];
-            if (!touch) return;
-            touchX = touch.clientX;
-            touchY = touch.clientY;
-            touchActive = true;
+    let touchFadeTimer = null;
+    let touchFadeStart = 0;
+    const TOUCH_LINGER_MS = 1500; // spotlight stays 1.5s after lifting finger
+    const TOUCH_FADE_MS = 600;    // then fades out over 0.6s
 
-            // Apply the radial spotlight mask at the touch point
-            const shiftX = currentMouseX * -15;
-            const shiftY = currentMouseY * -15;
-            const maskX = touchX - shiftX;
-            const maskY = touchY - shiftY;
-            const maskSize = 140;
-            const gradient = `radial-gradient(circle ${maskSize}px at ${maskX}px ${maskY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)`;
-            secretCodeLayer.style.webkitMaskImage = gradient;
-            secretCodeLayer.style.maskImage = gradient;
-            // Restore full layer opacity while touching
-            const bedroomFade = smoothstep(0.40, 0.75, currentScrollProgress);
-            secretCodeLayer.style.opacity = 1 - bedroomFade * 0.88;
-        }, { passive: true });
+    function applyTouchMask(clientX, clientY) {
+        touchX = clientX;
+        touchY = clientY;
+        touchActive = true;
 
-        fixedScene.addEventListener("touchend", () => {
-            touchActive = false;
-            // Mask will be cleared on next drawRip frame (pulse resumes)
-        }, { passive: true });
+        // Cancel any pending fade-out
+        if (touchFadeTimer) {
+            cancelAnimationFrame(touchFadeTimer);
+            touchFadeTimer = null;
+        }
 
-        fixedScene.addEventListener("touchcancel", () => {
-            touchActive = false;
-        }, { passive: true });
+        // Apply the radial spotlight mask at the touch point
+        const maskSize = 140;
+        const gradient = `radial-gradient(circle ${maskSize}px at ${touchX}px ${touchY}px, rgba(0,0,0,1) 0%, rgba(0,0,0,0) 80%)`;
+        secretCodeLayer.style.webkitMaskImage = gradient;
+        secretCodeLayer.style.maskImage = gradient;
+        // Restore full layer opacity while touching
+        const bedroomFade = smoothstep(0.40, 0.75, currentScrollProgress);
+        secretCodeLayer.style.opacity = 1 - bedroomFade * 0.88;
+
+        // Move and show cursor glow on touch
+        const glow = document.getElementById("cursor-glow");
+        if (glow) {
+            glow.style.transform = `translate(${touchX}px, ${touchY}px)`;
+            glow.style.opacity = 1 - bedroomFade;
+        }
     }
+
+    function beginTouchFadeOut() {
+        touchFadeStart = performance.now();
+
+        function fadeStep() {
+            const elapsed = performance.now() - touchFadeStart;
+            const bedroomFade = smoothstep(0.40, 0.75, currentScrollProgress);
+            const initialGlowOpacity = 1 - bedroomFade;
+
+            if (elapsed < TOUCH_LINGER_MS) {
+                // Still lingering — keep spotlight and glow fully visible
+                const glow = document.getElementById("cursor-glow");
+                if (glow) {
+                    glow.style.opacity = initialGlowOpacity;
+                }
+                touchFadeTimer = requestAnimationFrame(fadeStep);
+                return;
+            }
+
+            const fadeElapsed = elapsed - TOUCH_LINGER_MS;
+            if (fadeElapsed >= TOUCH_FADE_MS) {
+                // Fade complete — hand control back to the pulse
+                touchActive = false;
+                touchFadeTimer = null;
+                const glow = document.getElementById("cursor-glow");
+                if (glow) {
+                    glow.style.opacity = 0;
+                }
+                return;
+            }
+
+            // Fading out: interpolate opacity from full to pulse level
+            const t = fadeElapsed / TOUCH_FADE_MS;
+            const fullOpacity = 1 - bedroomFade * 0.88;
+            const pulseTime = performance.now() / 1000;
+            const pulseOpacity = (0.04 + 0.04 * Math.sin(pulseTime * 0.8)) * (1 - bedroomFade);
+            secretCodeLayer.style.opacity = fullOpacity + (pulseOpacity - fullOpacity) * t;
+
+            // Fade the cursor glow to 0
+            const glow = document.getElementById("cursor-glow");
+            if (glow) {
+                glow.style.opacity = initialGlowOpacity * (1 - t);
+            }
+
+            touchFadeTimer = requestAnimationFrame(fadeStep);
+        }
+
+        touchFadeTimer = requestAnimationFrame(fadeStep);
+    }
+
+    // Listen on document so touches aren't blocked by the scroll-track overlay (z-index 50)
+    document.addEventListener("touchstart", (e) => {
+        // Only activate the flashlight when the bedroom scene is visible (low scroll progress)
+        if (currentScrollProgress < 0.5) {
+            const touch = e.touches[0];
+            if (touch) applyTouchMask(touch.clientX, touch.clientY);
+        }
+    }, { passive: true });
+
+    document.addEventListener("touchmove", (e) => {
+        if (!touchActive) return;
+        const touch = e.touches[0];
+        if (touch) applyTouchMask(touch.clientX, touch.clientY);
+    }, { passive: true });
+
+    document.addEventListener("touchend", () => {
+        // Don't immediately hide — let the spotlight linger then fade
+        beginTouchFadeOut();
+    }, { passive: true });
+
+    document.addEventListener("touchcancel", () => {
+        beginTouchFadeOut();
+    }, { passive: true });
 }
 
 audioToggle.addEventListener("click", () => {
